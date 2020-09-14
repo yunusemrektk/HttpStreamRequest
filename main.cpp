@@ -63,9 +63,18 @@ int main(int argc, char *argv[])
         //Run command
 
         if(QFileInfo(cfg.file264path+fileName).exists() && x["Port"].s()==cfg.npmPort){
-            createRandomFolder();
+           createRandomFolder();
+           /* std::thread convert(convert264tom3u8);
+            convert.detach();
+            sleep(3);
+            //Sleep until the m3u8 file is generated
+
+            while(QFileInfo(QString::fromStdString(cfg.m3u8outpath)+"/index.m3u8").exists()==false){
+                sleep(1);
+            }
+*/
             getNgrokUrl();
-            output="{\"HlsUrl\":\""+ngrokUrl.toStdString()+"/"+randomString.toStdString()+"/"+cfg.outputNamem3u8+cfg.outputType+"\"}";
+            output="{\"HlsUrl\":\""+ngrokUrl.toStdString()+"/"+cfg.outputNamem3u8+cfg.outputType+"\"}";
             randomString="";
         }
 
@@ -88,7 +97,7 @@ int main(int argc, char *argv[])
 }
 
 void createhttpserver(){
-    std::string command = "cd "+cfg.npmModuleHttpServerPath+" && ./http-server -p "+cfg.npmPort+" "+cfg.localFileSharePath + randomString.toStdString();
+    std::string command = "cd "+cfg.npmModuleHttpServerPath+" && ./http-server -p "+cfg.npmPort+" "+cfg.localFileSharePath;
     std::system(command.c_str());
 }
 
@@ -105,19 +114,19 @@ void openNgrok(){
 
 void convert264tom3u8(){
 
-    std::string command = "cd "+cfg.live555HLSProxyPath+" &&./live555HLSProxy -t "+cfg.RtspServerLink+" "+cfg.m3u8outpath+randomString.toStdString()+"/"+cfg.outputNamem3u8;
+    std::string command = "cd "+cfg.live555HLSProxyPath+" &&./live555HLSProxy -t "+cfg.RtspServerLink+" "+cfg.outputNamem3u8;
     std::system(command.c_str());
 }
-
+/*
 void convertffmpeg(){
-    std::string command = "cd "+cfg.live555HLSProxyPath+" &&ffmpeg -i "+cfg.RtspServerLink+" -hls_time 3 -hls_wrap 10 "+cfg.m3u8outpath +randomString.toStdString()+"/"+cfg.outputNamem3u8+cfg.outputType;
+    std::string command = "ffmpeg -i rtsp://10.0.2.15:8554/mytest.264 -acodec copy -bsf:a aac_adtstoasc -vcodec copy /home/emre/Documents/live555-latest/live/hlsProxy/index.m3u8";
     std::system(command.c_str());
 }
-
+*/
 void createRandomFolder(){
 
-    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-    const int randomStringLength = 40; // assuming you want random strings of 12 characters
+   /* const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    const int randomStringLength = 10; // assuming you want random strings of 12 characters
 
 
     srand(time(NULL));
@@ -129,17 +138,20 @@ void createRandomFolder(){
         randomString.append(nextChar);
     }
 
-    QDir().mkdir(QString::fromStdString(cfg.m3u8outpath)+randomString);
+    QDir().mkdir(QString::fromStdString(cfg.m3u8outpath)+randomString);*/
 /*
     std::thread convert(convertffmpeg);
     convert.detach();
 */
+
     std::thread convert(convert264tom3u8);
     convert.detach();
+
     sleep(3);
+
     //Sleep until the m3u8 file is generated
 
-    while(QFileInfo(QString::fromStdString(cfg.m3u8outpath)+"/"+randomString+"/"+QString::fromStdString(cfg.outputNamem3u8+cfg.outputType)).exists()==false){
+    while(QFileInfo(QString::fromStdString(cfg.m3u8outpath)+"/"+QString::fromStdString(cfg.outputNamem3u8+cfg.outputType)).exists()==false){
         sleep(1);
     }
 
